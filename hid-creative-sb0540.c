@@ -22,9 +22,101 @@ MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
 MODULE_DESCRIPTION("HID Creative SB0540 receiver");
 MODULE_LICENSE("GPL");
 
-//FIXME implement
 static const unsigned short creative_sb0540_key_table[] = {
-	KEY_RESERVED,
+	KEY_POWER,
+	KEY_RESERVED,		/* text: 24bit */
+	KEY_RESERVED,		/* 24bit wheel up */
+	KEY_RESERVED,		/* 24bit wheel down */
+	KEY_RESERVED,		/* text: CMSS */
+	KEY_RESERVED,		/* CMSS wheel Up */
+	KEY_RESERVED,		/* CMSS wheel Down */
+	KEY_RESERVED,		/* text: EAX */
+	KEY_RESERVED,		/* EAX wheel up */
+	KEY_RESERVED,		/* EAX wheel down */
+	KEY_RESERVED,		/* text: 3D Midi */
+	KEY_RESERVED,		/* 3D Midi wheel up */
+	KEY_RESERVED,		/* 3D Midi wheel down */
+	KEY_MUTE,
+	KEY_VOLUMEUP,
+	KEY_VOLUMEDOWN,
+	KEY_UP,
+	KEY_LEFT,
+	KEY_RIGHT,
+	KEY_REWIND,
+	KEY_OK,
+	KEY_FASTFORWARD,
+	KEY_DOWN,
+	KEY_SELECT,		/* text: Return, symbol: Jump to */
+	KEY_RESERVED,		/* text: Start */
+	KEY_RESERVED,		/* Cancel */
+	KEY_RECORD,
+	KEY_OPTION,
+	KEY_RESERVED,		/* text: Display */
+	KEY_PREVIOUS,
+	KEY_PLAY,
+	KEY_NEXT,
+	KEY_SLOW,
+	KEY_STOP,
+	KEY_NUMERIC_1,
+	KEY_NUMERIC_2,
+	KEY_NUMERIC_3,
+	KEY_NUMERIC_4,
+	KEY_NUMERIC_5,
+	KEY_NUMERIC_6,
+	KEY_NUMERIC_7,
+	KEY_NUMERIC_8,
+	KEY_NUMERIC_9,
+	KEY_NUMERIC_0
+};
+
+/* Codes and keys from lirc's
+ * remotes/creative/lircd.conf.alsa_usb
+ * order and size must match creative_sb0540_key_table[] above */
+static const unsigned short creative_sb0540_codes[] = {
+	0x619E,
+	0x916E,
+	0x926D,
+	0x936C,
+	0x718E,
+	0x946B,
+	0x956A,
+	0x8C73,
+	0x9669,
+	0x9768,
+	0x9867,
+	0x9966,
+	0x9A65,
+	0x6E91,
+	0x629D,
+	0x639C,
+	0x7B84,
+	0x6B94,
+	0x728D,
+	0x8778,
+	0x817E,
+	0x758A,
+	0x8D72,
+	0x8E71,
+	0x8877,
+	0x7C83,
+	0x738C,
+	0x827D,
+	0x7689,
+	0x7F80,
+	0x7986,
+	0x7A85,
+	0x7D82,
+	0x857A,
+	0x8B74,
+	0x8F70,
+	0x906F,
+	0x8A75,
+	0x847B,
+	0x7887,
+	0x8976,
+	0x837C,
+	0x7788,
+	0x807F
 };
 
 struct creative_sb0540 {
@@ -45,11 +137,14 @@ static inline u64 reverse(u64 data, int bits)
 	return (c);
 }
 
-static int get_key(u64 keycode)
+static int get_key(struct creative_sb0540 *creative_sb0540, u64 keycode)
 {
-	/* From remotes/creative/lircd.conf.alsa_usb in lirc */
+	int i;
 
-	//FIXME impl
+	for (i = 0; i < ARRAY_SIZE(creative_sb0540_codes); i++) {
+		if (creative_sb0540_codes[i] == keycode)
+			return creative_sb0540->keymap[i];
+	}
 
 	return 0;
 
@@ -79,9 +174,8 @@ static int creative_sb0540_raw_event(struct hid_device *hid, struct hid_report *
 
 	hid_err(hid, "main_code: 0x%llX\n", main_code);
 
-	key = get_key(main_code);
-
-	if (!key) {
+	key = get_key(creative_sb0540, main_code);
+	if (key == 0 || key == KEY_RESERVED) {
 		hid_err(hid, "Could not get a key for main_code %llX\n", main_code);
 		goto out;
 	}
