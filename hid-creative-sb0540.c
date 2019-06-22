@@ -150,12 +150,8 @@ static int creative_sb0540_raw_event(struct hid_device *hid, struct hid_report *
 	u64 code, main_code;
 	int key;
 
-	hid_err(hid, "creative_sb0540_raw_event: len %d\n", len);
-
 	if (len != 6)
 		goto out;
-
-	hid_err(hid, "data: 0x%x\n", data[5]);
 
 	/* From daemons/hw_hiddev.c sb0540_rec() in lirc */
 	code = reverse(data[5], 8);
@@ -164,8 +160,6 @@ static int creative_sb0540_raw_event(struct hid_device *hid, struct hid_report *
 	/* Flip to get values in the same format as
 	 * remotes/creative/lircd.conf.alsa_usb in lirc */
 	main_code = ((main_code & 0xff) << 8) + ((main_code & 0xff00) >> 8);
-
-	hid_err(hid, "main_code: 0x%llX\n", main_code);
 
 	key = get_key(creative_sb0540, main_code);
 	if (key == 0 || key == KEY_RESERVED) {
