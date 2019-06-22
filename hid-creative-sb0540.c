@@ -211,11 +211,9 @@ static int creative_sb0540_probe(struct hid_device *hid, const struct hid_device
 	int ret;
 	struct creative_sb0540 *creative_sb0540;
 
-	creative_sb0540 = kzalloc(sizeof(struct creative_sb0540), GFP_KERNEL);
-	if (!creative_sb0540) {
-		ret = -ENOMEM;
-		goto allocfail;
-	}
+	creative_sb0540 = devm_kzalloc(&hid->dev, sizeof(struct creative_sb0540), GFP_KERNEL);
+	if (!creative_sb0540)
+		return -ENOMEM;
 
 	creative_sb0540->hid = hid;
 
@@ -227,27 +225,16 @@ static int creative_sb0540_probe(struct hid_device *hid, const struct hid_device
 	ret = hid_parse(hid);
 	if (ret) {
 		hid_err(hid, "parse failed\n");
-		goto fail;
+		return ret;
 	}
 
 	ret = hid_hw_start(hid, HID_CONNECT_DEFAULT | HID_CONNECT_HIDDEV_FORCE);
 	if (ret) {
 		hid_err(hid, "hw start failed\n");
-		goto fail;
+		return ret;
 	}
 
-	return 0;
-fail:
-	kfree(creative_sb0540);
-allocfail:
 	return ret;
-}
-
-static void creative_sb0540_remove(struct hid_device *hid)
-{
-	struct creative_sb0540 *creative_sb0540 = hid_get_drvdata(hid);
-	hid_hw_stop(hid);
-	kfree(creative_sb0540);
 }
 
 static const struct hid_device_id creative_sb0540_devices[] = {
@@ -262,7 +249,6 @@ static struct hid_driver creative_sb0540_driver = {
 	.raw_event = creative_sb0540_raw_event,
 	.input_configured = creative_sb0540_input_configured,
 	.probe = creative_sb0540_probe,
-	.remove = creative_sb0540_remove,
 	.input_mapping = creative_sb0540_input_mapping,
 };
 module_hid_driver(creative_sb0540_driver);
