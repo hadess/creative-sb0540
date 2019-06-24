@@ -228,7 +228,7 @@ static int creative_sb0540_probe(struct hid_device *hid, const struct hid_device
 		return ret;
 	}
 
-	ret = hid_hw_start(hid, HID_CONNECT_DEFAULT | HID_CONNECT_HIDDEV_FORCE);
+	ret = hid_hw_start(hid, HID_CONNECT_DEFAULT);
 	if (ret) {
 		hid_err(hid, "hw start failed\n");
 		return ret;
