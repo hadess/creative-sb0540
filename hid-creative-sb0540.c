@@ -39,14 +39,14 @@ static const unsigned short creative_sb0540_key_table[] = {
 	KEY_OK,
 	KEY_FASTFORWARD,
 	KEY_DOWN,
-	KEY_SELECT,		/* text: Return, symbol: Jump to */
-	KEY_RESERVED,		/* text: Start */
-	KEY_RESERVED,		/* Cancel */
+	KEY_AGAIN,		/* text: Return, symbol: Jump to */
+	KEY_PLAY,		/* text: Start */
+	KEY_ESC,		/* text: Cancel */
 	KEY_RECORD,
 	KEY_OPTION,
-	KEY_RESERVED,		/* text: Display */
+	KEY_MENU,		/* text: Display */
 	KEY_PREVIOUS,
-	KEY_PLAY,
+	KEY_PLAYPAUSE,
 	KEY_NEXT,
 	KEY_SLOW,
 	KEY_STOP,
