@@ -62,9 +62,11 @@ static const unsigned short creative_sb0540_key_table[] = {
 	KEY_NUMERIC_0
 };
 
-/* Codes and keys from lirc's
+/*
+ * Codes and keys from lirc's
  * remotes/creative/lircd.conf.alsa_usb
- * order and size must match creative_sb0540_key_table[] above */
+ * order and size must match creative_sb0540_key_table[] above
+ */
 static const unsigned short creative_sb0540_codes[] = {
 	0x619E,
 	0x916E,
@@ -125,7 +127,8 @@ static inline u64 reverse(u64 data, int bits)
 
 	c = 0;
 	for (i = 0; i < bits; i++) {
-		c |= (u64) (((data & (((u64) 1) << i)) ? 1 : 0)) << (bits - 1 - i);
+		c |= (u64) (((data & (((u64) 1) << i)) ? 1 : 0))
+			<< (bits - 1 - i);
 	}
 	return (c);
 }
@@ -143,8 +146,8 @@ static int get_key(struct creative_sb0540 *creative_sb0540, u64 keycode)
 
 }
 
-static int creative_sb0540_raw_event(struct hid_device *hid, struct hid_report *report,
-	 u8 *data, int len)
+static int creative_sb0540_raw_event(struct hid_device *hid,
+	struct hid_report *report, u8 *data, int len)
 {
 	struct creative_sb0540 *creative_sb0540 = hid_get_drvdata(hid);
 	u64 code, main_code;
@@ -157,21 +160,24 @@ static int creative_sb0540_raw_event(struct hid_device *hid, struct hid_report *
 	code = reverse(data[5], 8);
 	main_code = (code << 8) + ((~code) & 0xff);
 
-	/* Flip to get values in the same format as
-	 * remotes/creative/lircd.conf.alsa_usb in lirc */
-	main_code = ((main_code & 0xff) << 8) + ((main_code & 0xff00) >> 8);
+	/*
+	 * Flip to get values in the same format as
+	 * remotes/creative/lircd.conf.alsa_usb in lirc
+	 */
+	main_code = ((main_code & 0xff) << 8) +
+		((main_code & 0xff00) >> 8);
 
 	key = get_key(creative_sb0540, main_code);
 	if (key == 0 || key == KEY_RESERVED) {
-		hid_err(hid, "Could not get a key for main_code %llX\n", main_code);
-		goto out;
+		hid_err(hid, "Could not get a key for main_code %llX\n",
+			main_code);
+		return 0;
 	}
 
 	input_report_key(creative_sb0540->input_dev, key, 1);
 	input_report_key(creative_sb0540->input_dev, key, 0);
 	input_sync(creative_sb0540->input_dev);
 
-out:
 	/* let hidraw and hiddev handle the report */
 	return 0;
 }
@@ -191,7 +197,8 @@ static int creative_sb0540_input_configured(struct hid_device *hid,
 
 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
 
-	memcpy(creative_sb0540->keymap, creative_sb0540_key_table, sizeof(creative_sb0540->keymap));
+	memcpy(creative_sb0540->keymap, creative_sb0540_key_table,
+		sizeof(creative_sb0540->keymap));
 	for (i = 0; i < ARRAY_SIZE(creative_sb0540_key_table); i++)
 		set_bit(creative_sb0540->keymap[i], input_dev->keybit);
 	clear_bit(KEY_RESERVED, input_dev->keybit);
@@ -206,12 +213,15 @@ static int creative_sb0540_input_mapping(struct hid_device *hid,
 	return -1;
 }
 
-static int creative_sb0540_probe(struct hid_device *hid, const struct hid_device_id *id)
+static int creative_sb0540_probe(struct hid_device *hid,
+		const struct hid_device_id *id)
 {
 	int ret;
 	struct creative_sb0540 *creative_sb0540;
 
-	creative_sb0540 = devm_kzalloc(&hid->dev, sizeof(struct creative_sb0540), GFP_KERNEL);
+	creative_sb0540 = devm_kzalloc(&hid->dev,
+		sizeof(struct creative_sb0540), GFP_KERNEL);
+
 	if (!creative_sb0540)
 		return -ENOMEM;
 
