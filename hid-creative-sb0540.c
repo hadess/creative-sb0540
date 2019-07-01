@@ -210,6 +210,10 @@ static int creative_sb0540_input_mapping(struct hid_device *hid,
 		struct hid_input *hi, struct hid_field *field,
 		struct hid_usage *usage, unsigned long **bit, int *max)
 {
+	/*
+	 * We are remapping the keys ourselves, so ignore the hid-input
+	 * keymap processing.
+	 */
 	return -1;
 }
 
