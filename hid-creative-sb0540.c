@@ -154,7 +154,7 @@ static int creative_sb0540_raw_event(struct hid_device *hid,
 	int key;
 
 	if (len != 6)
-		goto out;
+		return 0;
 
 	/* From daemons/hw_hiddev.c sb0540_rec() in lirc */
 	code = reverse(data[5], 8);
